@@ -1,8 +1,11 @@
 import axios from 'axios';
 
+// Используем переменную окружения для API URL
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+
 // Единый экземпляр axios для всех запросов к API
 const apiClient = axios.create({
-  baseURL: 'http://localhost:3001/api',
+  baseURL: API_URL,
   headers: { 'Content-Type': 'application/json' },
 });
 
