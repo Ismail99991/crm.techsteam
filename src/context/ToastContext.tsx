@@ -24,7 +24,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const addToast = useCallback((type: ToastType, message: string) => {
-    const id = crypto.randomUUID();
+    const id = Date.now().toString(36) + Math.random().toString(36).substring(2, 9);
     setToasts((prev) => [...prev, { id, type, message }]);
 
     // Авто-удаление через 4 секунды
