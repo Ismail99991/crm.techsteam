@@ -32,6 +32,13 @@ apiClient.interceptors.request.use((config) => {
   } else {
     delete config.headers.Authorization;
   }
+
+  // Если тело запроса — FormData, удаляем Content-Type,
+  // чтобы браузер сам установил multipart/form-data с boundary
+  if (config.data instanceof FormData) {
+    delete config.headers['Content-Type'];
+  }
+
   return config;
 });
 
