@@ -20,4 +20,5 @@ jobs:
             cd /var/www/crm.techsteam
             git reset --hard origin/master
             git pull origin master
+            pm2 restart crm.techsteam --update-env
             echo "✅ crm.techsteam deployed"
