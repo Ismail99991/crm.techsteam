@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import apiClient, { getErrorMessage } from '../api/client';
 import { useToast } from '../context/ToastContext';
@@ -69,7 +69,8 @@ export default function ProductFormPage() {
     return title
       .toLowerCase()
       .replace(/[^a-z0-9а-яё]+/g, '-')
-      .replace(/^-|-$/g, '');
+      .replace(/^-|-$/g, '')
+      .replace(/[а-яё]/g, '');
   };
 
   const validate = (): boolean => {
@@ -78,13 +79,13 @@ export default function ProductFormPage() {
     if (!form.title.trim()) {
       e.title = 'Название обязательно';
     } else if (form.title.length > 200) {
-      e.title = 'Название не может быть длиннее 200 символов';
+      e.title = 'Название не может превышать 200 символов';
     }
 
     if (!form.slug.trim()) {
       e.slug = 'Slug обязателен';
     } else if (!/^[a-z0-9-]+$/.test(form.slug)) {
-      e.slug = 'Slug может содержать только латинские буквы, цифры и дефис';
+      e.slug = 'Slug может содержать только латинские буквы, цифры и дефисы';
     }
 
     if (!form.categoryId) {
@@ -99,7 +100,7 @@ export default function ProductFormPage() {
     }
 
     if (form.article && form.article.length > 50) {
-      e.article = 'Артикул не может быть длиннее 50 символов';
+      e.article = 'Артикул не может превышать 50 символов';
     }
 
     setErrors(e);
@@ -164,7 +165,7 @@ export default function ProductFormPage() {
   return (
     <div className="page">
       <h1 className="page-title">
-        {isEdit ? 'Редактировать товар' : 'Новый товар'}
+        {isEdit ? 'Редактирование товара' : 'Создание товара'}
       </h1>
 
       <div className="card">
@@ -239,7 +240,7 @@ export default function ProductFormPage() {
               }}
               className={errors.categoryId ? 'input-error' : ''}
             >
-              <option value="">— выберите категорию —</option>
+              <option value="">- Выберите категорию -</option>
               {categories.map((cat) => (
                 <option key={cat.id} value={cat.id}>
                   {cat.name}
@@ -269,7 +270,6 @@ export default function ProductFormPage() {
             )}
           </div>
 
-          {/* Price Type Toggle */}
           <div className="form-group" style={{ marginTop: '0.75rem' }}>
             <label>Тип цены</label>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -311,7 +311,7 @@ export default function ProductFormPage() {
                   }
                   hidden
                 />
-                Запрос КП
+                Цена по запросу
               </label>
             </div>
           </div>
@@ -338,7 +338,6 @@ export default function ProductFormPage() {
             </div>
           )}
 
-          {/* Характеристики */}
           <div className="form-group" style={{ marginTop: '1rem' }}>
             <label>Характеристики</label>
             <div
@@ -379,7 +378,7 @@ export default function ProductFormPage() {
                     onClick={() => removeCharacteristic(i)}
                     title="Удалить характеристику"
                   >
-                    ×
+                    X
                   </button>
                 </div>
               ))}
@@ -394,7 +393,6 @@ export default function ProductFormPage() {
             </div>
           </div>
 
-          {/* Изображения */}
           <div className="form-group" style={{ marginTop: '1rem' }}>
             <label>Изображения</label>
             <FileUpload

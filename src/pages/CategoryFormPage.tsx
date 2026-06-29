@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import apiClient, { getErrorMessage } from '../api/client';
 import { useToast } from '../context/ToastContext';
@@ -57,7 +57,7 @@ export default function CategoryFormPage() {
     if (!form.slug.trim()) {
       e.slug = 'Slug обязателен';
     } else if (!/^[a-z0-9-]+$/.test(form.slug)) {
-      e.slug = 'Slug может содержать только латинские буквы, цифры и дефис';
+      e.slug = 'Slug может содержать только латинские буквы, цифры и дефисы';
     }
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -91,10 +91,12 @@ export default function CategoryFormPage() {
   };
 
   const generateSlug = (name: string) => {
+    if (isEdit) return form.slug;
     return name
       .toLowerCase()
       .replace(/[^a-z0-9а-яё]+/g, '-')
-      .replace(/^-|-$/g, '');
+      .replace(/^-|-$/g, '')
+      .replace(/[а-яё]/g, '');
   };
 
   if (fetching) return <div className="loading">Загрузка...</div>;
@@ -102,7 +104,7 @@ export default function CategoryFormPage() {
   return (
     <div className="page">
       <h1 className="page-title">
-        {isEdit ? 'Редактировать категорию' : 'Новая категория'}
+        {isEdit ? 'Редактирование категории' : 'Создание категории'}
       </h1>
 
       <div className="card">

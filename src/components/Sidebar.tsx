@@ -1,12 +1,15 @@
-import { NavLink } from 'react-router-dom';
+﻿import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const navItems = [
-  { to: '/', label: 'Дашборд', icon: '📊' },
-  { to: '/users', label: 'Пользователи', icon: '👥' },
-  { to: '/admin/categories', label: 'Категории', icon: '📁' },
+  { to: '/', label: 'Панель', icon: '📊' },
+  { to: '/users', label: 'Сотрудники CRM', icon: '👤' },
+  { to: '/market-users', label: 'Клиенты (B2B)', icon: '🏢' },
+  { to: '/admin/categories', label: 'Категории', icon: '📂' },
   { to: '/admin/products', label: 'Товары', icon: '📦' },
-  { to: '/orders', label: 'Заказы', icon: '📋' },
+  { to: '/orders', label: 'Заказы', icon: '🛒' },
+  { to: '/quotes', label: 'Запросы КП', icon: '📄' },
+  { to: '/callbacks', label: 'Заявки на звонок', icon: '📞' },
   { to: '/settings', label: 'Настройки', icon: '⚙️' },
 ];
 
@@ -16,7 +19,7 @@ export default function Sidebar() {
   return (
     <aside className="sidebar">
       <div className="sidebar-header">
-        <h2>BROX CRM</h2>
+        <h2>TechSteam CRM</h2>
       </div>
 
       <nav className="sidebar-nav">

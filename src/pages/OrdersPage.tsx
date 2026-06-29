@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import apiClient from '../api/client';
 import type { Order } from '../types';
@@ -15,7 +15,7 @@ const statusColors: Record<string, string> = {
 
 const statusLabels: Record<string, string> = {
   CREATED: 'Создан',
-  PENDING: 'Ожидает',
+  PENDING: 'В обработке',
   PAID: 'Оплачен',
   IN_PROGRESS: 'В работе',
   SHIPPED: 'Отгружен',
@@ -54,10 +54,10 @@ export default function OrdersPage() {
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Пользователь</th>
+                <th>Клиент</th>
                 <th>Статус</th>
                 <th>Сумма</th>
-                <th>Позиций</th>
+                <th>Товаров</th>
                 <th>Дата</th>
                 <th></th>
               </tr>
@@ -66,7 +66,7 @@ export default function OrdersPage() {
               {orders.map((order) => (
                 <tr key={order.id}>
                   <td className="text-mono">{order.id.slice(0, 8)}...</td>
-                  <td>{order.user?.email || '—'}</td>
+                  <td>{order.marketUser?.email || '-'}</td>
                   <td>
                     <span
                       className="status-badge"

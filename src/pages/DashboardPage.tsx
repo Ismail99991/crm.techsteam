@@ -1,7 +1,27 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import apiClient from '../api/client';
-import type { DashboardStats, Order, Event, EventStats } from '../types';
+import type { DashboardStats, Order, AppEvent, QuoteRequest } from '../types';
+
+const statusColors: Record<string, string> = {
+  CREATED: '#6b7280',
+  PENDING: '#f59e0b',
+  PAID: '#10b981',
+  IN_PROGRESS: '#3b82f6',
+  SHIPPED: '#8b5cf6',
+  DONE: '#059669',
+  CANCELED: '#ef4444',
+};
+
+const statusLabels: Record<string, string> = {
+  CREATED: 'Создан',
+  PENDING: 'В обработке',
+  PAID: 'Оплачен',
+  IN_PROGRESS: 'В работе',
+  SHIPPED: 'Отгружен',
+  DONE: 'Выполнен',
+  CANCELED: 'Отменён',
+};
 
 export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -13,32 +33,27 @@ export default function DashboardPage() {
 
   const loadDashboardData = async () => {
     try {
-      // Параллельные запросы для сбора статистики
-      const [usersRes, ordersRes, productsRes, eventsRes, eventsStatsRes] =
+      const [usersRes, ordersRes, productsRes, eventsRes, quotesRes, callbacksRes] =
         await Promise.allSettled([
-          apiClient.get('/users'),
+          apiClient.get('/market/users'),
           apiClient.get('/orders'),
           apiClient.get('/products'),
           apiClient.get('/events'),
-          apiClient.get('/events/stats'),
+          apiClient.get('/quotes'),
+          apiClient.get('/callbacks'),
         ]);
 
       const users = usersRes.status === 'fulfilled' ? usersRes.value.data : [];
-      const orders: Order[] =
-        ordersRes.status === 'fulfilled' ? ordersRes.value.data : [];
-      const products =
-        productsRes.status === 'fulfilled' ? productsRes.value.data : [];
-      const recentEvents: Event[] =
-        eventsRes.status === 'fulfilled' ? eventsRes.value.data : [];
-      const eventStats: EventStats | null =
-        eventsStatsRes.status === 'fulfilled' ? eventsStatsRes.value.data : null;
+      const orders: Order[] = ordersRes.status === 'fulfilled' ? ordersRes.value.data : [];
+      const products = productsRes.status === 'fulfilled' ? productsRes.value.data : [];
+      const recentEvents: AppEvent[] = eventsRes.status === 'fulfilled' ? eventsRes.value.data : [];
+      const recentQuoteRequests: QuoteRequest[] = quotesRes.status === 'fulfilled' ? quotesRes.value.data : [];
+      const callbacks = callbacksRes.status === 'fulfilled' ? callbacksRes.value.data : [];
 
-      // Подсчёт выручки (total из заказов со статусом PAID и выше)
       const revenue = orders
         .filter((o) => !['CREATED', 'CANCELED'].includes(o.status))
         .reduce((sum, o) => sum + o.total, 0);
 
-      // Группировка заказов по статусу
       const statusCount: Record<string, number> = {};
       orders.forEach((o) => {
         statusCount[o.status] = (statusCount[o.status] || 0) + 1;
@@ -55,9 +70,12 @@ export default function DashboardPage() {
         totalOrders: orders.length,
         totalProducts: products.length,
         totalRevenue: revenue,
+        totalQuoteRequests: recentQuoteRequests.length,
+        totalCallbacks: Array.isArray(callbacks) ? callbacks.length : 0,
         ordersByStatus,
         recentOrders: orders.slice(0, 5),
         recentEvents: recentEvents.slice(0, 5),
+        recentQuoteRequests: recentQuoteRequests.slice(0, 5),
       });
     } catch (err) {
       console.error('Failed to load dashboard data', err);
@@ -67,46 +85,24 @@ export default function DashboardPage() {
   };
 
   if (loading) return <div className="loading">Загрузка данных...</div>;
-  if (!stats) return <div className="loading">Ошибка загрузки данных</div>;
-
-  // Цвета для статусов заказов
-  const statusColors: Record<string, string> = {
-    CREATED: '#6b7280',
-    PENDING: '#f59e0b',
-    PAID: '#10b981',
-    IN_PROGRESS: '#3b82f6',
-    SHIPPED: '#8b5cf6',
-    DONE: '#059669',
-    CANCELED: '#ef4444',
-  };
-
-  const statusLabels: Record<string, string> = {
-    CREATED: 'Создан',
-    PENDING: 'Ожидает',
-    PAID: 'Оплачен',
-    IN_PROGRESS: 'В работе',
-    SHIPPED: 'Отгружен',
-    DONE: 'Выполнен',
-    CANCELED: 'Отменён',
-  };
+  if (!stats) return <div className="loading">Не удалось загрузить данные</div>;
 
   return (
     <div className="page">
-      <h1 className="page-title">Дашборд</h1>
+      <h1 className="page-title">Панель управления</h1>
 
-      {/* Карточки со статистикой */}
       <div className="stats-grid">
         <div className="stat-card">
           <div className="stat-value">{stats.totalUsers}</div>
-          <div className="stat-label">Пользователей</div>
+          <div className="stat-label">Клиенты (B2B)</div>
         </div>
         <div className="stat-card">
           <div className="stat-value">{stats.totalOrders}</div>
-          <div className="stat-label">Заказов</div>
+          <div className="stat-label">Заказы</div>
         </div>
         <div className="stat-card">
           <div className="stat-value">{stats.totalProducts}</div>
-          <div className="stat-label">Товаров</div>
+          <div className="stat-label">Товары</div>
         </div>
         <div className="stat-card">
           <div className="stat-value">
@@ -114,10 +110,17 @@ export default function DashboardPage() {
           </div>
           <div className="stat-label">Выручка</div>
         </div>
+        <div className="stat-card">
+          <div className="stat-value">{stats.totalQuoteRequests}</div>
+          <div className="stat-label">Запросы КП</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-value">{stats.totalCallbacks}</div>
+          <div className="stat-label">Заявки на звонок</div>
+        </div>
       </div>
 
       <div className="dashboard-grid">
-        {/* Распределение заказов по статусам */}
         <div className="card">
           <h2 className="card-title">Статусы заказов</h2>
           <div className="status-list">
@@ -139,7 +142,6 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Последние заказы */}
         <div className="card">
           <div className="card-header">
             <h2 className="card-title">Последние заказы</h2>
@@ -189,7 +191,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Последние события */}
       <div className="card" style={{ marginTop: '1.5rem' }}>
         <h2 className="card-title">Последние события</h2>
         <div className="table-wrapper">
@@ -207,7 +208,7 @@ export default function DashboardPage() {
                   <td>
                     <span className="event-type">{event.type}</span>
                   </td>
-                  <td className="text-mono">{event.path || '—'}</td>
+                  <td className="text-mono">{event.path || '-'}</td>
                   <td>
                     {new Date(event.createdAt).toLocaleString('ru-RU')}
                   </td>

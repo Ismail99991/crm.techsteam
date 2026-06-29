@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import apiClient, { getErrorMessage } from '../api/client';
 import { useToast } from '../context/ToastContext';
@@ -13,7 +13,7 @@ export default function CategoriesPage() {
 
   useEffect(() => {
     apiClient
-      .get('/admin/categories')
+      .get('/categories')
       .then((res) => setCategories(res.data))
       .catch((err) => addToast('error', getErrorMessage(err)))
       .finally(() => setLoading(false));
@@ -24,7 +24,7 @@ export default function CategoriesPage() {
     try {
       await apiClient.delete(`/admin/categories/${deleteTarget.id}`);
       setCategories((prev) => prev.filter((c) => c.id !== deleteTarget.id));
-      addToast('success', `Категория «${deleteTarget.name}» удалена`);
+      addToast('success', `Категория <${deleteTarget.name}> удалена`);
     } catch (err) {
       addToast('error', getErrorMessage(err));
     } finally {
@@ -66,25 +66,25 @@ export default function CategoriesPage() {
                         style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 4 }}
                       />
                     ) : (
-                      <span className="text-muted">—</span>
+                      <span className="text-muted">-</span>
                     )}
                   </td>
                   <td>{cat.name}</td>
                   <td className="text-mono">{cat.slug}</td>
-                  <td>{cat.title || '—'}</td>
+                  <td>{cat.title || '-'}</td>
                   <td>
                     <div className="actions">
                       <Link
                         to={`/admin/categories/${cat.id}/edit`}
                         className="btn btn-sm"
                       >
-                        ✏️
+                        Редактировать
                       </Link>
                       <button
                         className="btn btn-sm btn-danger"
                         onClick={() => setDeleteTarget(cat)}
                       >
-                        🗑️
+                        Удалить
                       </button>
                     </div>
                   </td>
@@ -107,7 +107,7 @@ export default function CategoriesPage() {
         title="Удаление категории"
         message={
           deleteTarget
-            ? `Вы уверены, что хотите удалить категорию «${deleteTarget.name}»? Товары в этой категории останутся без категории.`
+            ? `Вы уверены, что хотите удалить категорию <${deleteTarget.name}>? Товары в этой категории останутся без категории.`
             : ''
         }
         confirmLabel="Удалить"

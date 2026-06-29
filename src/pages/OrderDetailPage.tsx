@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import apiClient from '../api/client';
+import { useToast } from '../context/ToastContext';
+import { getErrorMessage } from '../api/client';
 import type { Order } from '../types';
 
 const statusColors: Record<string, string> = {
@@ -15,7 +17,7 @@ const statusColors: Record<string, string> = {
 
 const statusLabels: Record<string, string> = {
   CREATED: 'Создан',
-  PENDING: 'Ожидает',
+  PENDING: 'В обработке',
   PAID: 'Оплачен',
   IN_PROGRESS: 'В работе',
   SHIPPED: 'Отгружен',
@@ -23,7 +25,6 @@ const statusLabels: Record<string, string> = {
   CANCELED: 'Отменён',
 };
 
-// Разрешённые переходы статусов (с frontend-стороны)
 const allowedTransitions: Record<string, string[]> = {
   CREATED: ['PENDING', 'CANCELED'],
   PENDING: ['PAID', 'CANCELED'],
@@ -37,6 +38,7 @@ const allowedTransitions: Record<string, string[]> = {
 export default function OrderDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { addToast } = useToast();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -62,19 +64,20 @@ export default function OrderDetailPage() {
         status: newStatus,
       });
       setOrder(data);
-    } catch {
-      alert('Ошибка при изменении статуса');
+      addToast('success', `Статус изменён на "${statusLabels[newStatus] || newStatus}"`);
+    } catch (err) {
+      addToast('error', getErrorMessage(err));
     }
   };
 
   const handleDelete = async () => {
     if (!window.confirm('Удалить заказ?')) return;
-
     try {
       await apiClient.delete(`/orders/${id}`);
+      addToast('success', 'Заказ удалён');
       navigate('/orders');
-    } catch {
-      alert('Ошибка при удалении заказа');
+    } catch (err) {
+      addToast('error', getErrorMessage(err));
     }
   };
 
@@ -94,7 +97,6 @@ export default function OrderDetailPage() {
       </div>
 
       <div className="order-detail-grid">
-        {/* Информация о заказе */}
         <div className="card">
           <h2 className="card-title">Информация</h2>
           <div className="info-list">
@@ -103,8 +105,8 @@ export default function OrderDetailPage() {
               <span className="text-mono">{order.id}</span>
             </div>
             <div className="info-row">
-              <span className="info-label">Пользователь</span>
-              <span>{order.user?.email || '—'}</span>
+              <span className="info-label">Клиент</span>
+              <span>{order.marketUser?.email || '-'}</span>
             </div>
             <div className="info-row">
               <span className="info-label">Статус</span>
@@ -134,7 +136,6 @@ export default function OrderDetailPage() {
           </div>
         </div>
 
-        {/* Смена статуса */}
         <div className="card">
           <h2 className="card-title">Изменить статус</h2>
           {nextStatuses.length > 0 ? (
@@ -159,9 +160,8 @@ export default function OrderDetailPage() {
         </div>
       </div>
 
-      {/* Позиции заказа */}
       <div className="card" style={{ marginTop: '1.5rem' }}>
-        <h2 className="card-title">Позиции заказа</h2>
+        <h2 className="card-title">Состав заказа</h2>
         <div className="table-wrapper">
           <table className="table">
             <thead>
@@ -175,7 +175,7 @@ export default function OrderDetailPage() {
             <tbody>
               {order.items.map((item) => (
                 <tr key={item.id}>
-                  <td>{item.productId}</td>
+                  <td>{item.product?.title || item.productId}</td>
                   <td>{item.quantity}</td>
                   <td>{item.price.toLocaleString('ru-RU')} ₽</td>
                   <td>

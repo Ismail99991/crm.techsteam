@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+﻿import { useCallback, useState } from 'react';
 import apiClient, { getErrorMessage } from '../api/client';
 import { useToast } from '../context/ToastContext';
 
@@ -43,7 +43,7 @@ export default function FileUpload({
           onImagesChange(uploaded.slice(0, 1));
         }
 
-        addToast('success', `Изображение${files.length > 1 ? 'я' : ''} загружено`);
+        addToast('success', `Изображение${files.length > 1 ? 'я' : ''} загружены`);
       } catch (err) {
         addToast('error', getErrorMessage(err));
       } finally {
@@ -79,12 +79,12 @@ export default function FileUpload({
           </div>
         )}
       </div>
-      <label className={`btn btn-sm ${uploading ? 'btn-disabled' : 'btn-outline-primary'}`}>
+      <label className={`btn btn-sm ${uploading ? 'btn-disabled' : ''}`}>
         {uploading
           ? 'Загрузка...'
           : images.length > 0
             ? 'Добавить ещё'
-            : 'Загрузить изображение'}
+            : 'Выбрать изображение'}
         <input
           type="file"
           accept="image/*"

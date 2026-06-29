@@ -1,10 +1,10 @@
-import { useToast } from '../context/ToastContext';
+﻿import { useToast } from '../context/ToastContext';
 
 const icons: Record<string, string> = {
-  success: '✅',
-  error: '❌',
-  info: 'ℹ️',
-  warning: '⚠️',
+  success: '✓',
+  error: '✕',
+  info: 'ℹ',
+  warning: '⚠',
 };
 
 export default function ToastContainer() {

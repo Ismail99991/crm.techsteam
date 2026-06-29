@@ -1,4 +1,4 @@
-import { useState, FormEvent } from 'react';
+﻿import { useState, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -28,8 +28,8 @@ export default function LoginPage() {
   return (
     <div className="login-page">
       <div className="login-card">
-        <h1 className="login-title">BROX CRM</h1>
-        <p className="login-subtitle">Войдите в систему</p>
+        <h1 className="login-title">TechSteam CRM</h1>
+        <p className="login-subtitle">Войдите в панель управления</p>
 
         {error && <div className="alert alert-error">{error}</div>}
 
@@ -41,7 +41,7 @@ export default function LoginPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@brox.local"
+              placeholder="admin@techsteam.ru"
               required
               autoFocus
             />
@@ -54,7 +54,7 @@ export default function LoginPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="admin123"
+              placeholder="••••••••"
               required
             />
           </div>

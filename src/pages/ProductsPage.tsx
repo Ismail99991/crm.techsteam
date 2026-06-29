@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import apiClient, { getErrorMessage } from '../api/client';
 import { useToast } from '../context/ToastContext';
@@ -13,7 +13,7 @@ export default function ProductsPage() {
 
   useEffect(() => {
     apiClient
-      .get('/api/products')
+      .get('/products')
       .then((res) => setProducts(res.data))
       .catch((err) => addToast('error', getErrorMessage(err)))
       .finally(() => setLoading(false));
@@ -24,7 +24,7 @@ export default function ProductsPage() {
     try {
       await apiClient.delete(`/admin/products/${deleteTarget.id}`);
       setProducts((prev) => prev.filter((p) => p.id !== deleteTarget.id));
-      addToast('success', `Товар «${deleteTarget.title}» удалён`);
+      addToast('success', `Товар <${deleteTarget.title}> удалён`);
     } catch (err) {
       addToast('error', getErrorMessage(err));
     } finally {
@@ -69,12 +69,12 @@ export default function ProductsPage() {
                         style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 4 }}
                       />
                     ) : (
-                      <span className="text-muted">—</span>
+                      <span className="text-muted">-</span>
                     )}
                   </td>
                   <td>{p.title}</td>
-                  <td>{p.category?.name || '—'}</td>
-                  <td>{p.priceType === 'FIXED' ? `${p.price} ₽` : '—'}</td>
+                  <td>{p.category?.name || '-'}</td>
+                  <td>{p.priceType === 'FIXED' ? `${p.price} ₽` : '-'}</td>
                   <td>
                     <span
                       className="status-badge"
@@ -82,10 +82,10 @@ export default function ProductsPage() {
                         background: p.priceType === 'FIXED' ? '#10b981' : '#f59e0b',
                       }}
                     >
-                      {p.priceType === 'FIXED' ? 'Фиксированная' : 'Запрос КП'}
+                      {p.priceType === 'FIXED' ? 'Фиксированная' : 'Запрос'}
                     </span>
                   </td>
-                  <td>{p.article || '—'}</td>
+                  <td>{p.article || '-'}</td>
                   <td>
                     <span
                       className="status-dot"
@@ -98,13 +98,13 @@ export default function ProductsPage() {
                         to={`/admin/products/${p.id}/edit`}
                         className="btn btn-sm"
                       >
-                        ✏️
+                        Редактировать
                       </Link>
                       <button
                         className="btn btn-sm btn-danger"
                         onClick={() => setDeleteTarget(p)}
                       >
-                        🗑️
+                        Удалить
                       </button>
                     </div>
                   </td>
@@ -127,7 +127,7 @@ export default function ProductsPage() {
         title="Удаление товара"
         message={
           deleteTarget
-            ? `Вы уверены, что хотите удалить товар «${deleteTarget.title}»? Это действие нельзя отменить.`
+            ? `Вы уверены, что хотите удалить товар <${deleteTarget.title}>? Это действие необратимо.`
             : ''
         }
         confirmLabel="Удалить"

@@ -1,9 +1,9 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+﻿import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import apiClient from '../api/client';
-import type { User, LoginResponse } from '../types';
+import type { CrmUser, CrmLoginResponse } from '../types';
 
 interface AuthContextType {
-  user: User | null;
+  user: CrmUser | null;
   token: string | null;
   isAuthenticated: boolean;
   loading: boolean;
@@ -14,11 +14,11 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<CrmUser | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // При монтировании проверяем, есть ли сохранённый токен
+  // Восстанавливаем сессию из localStorage
   useEffect(() => {
     const savedToken = localStorage.getItem('token');
     const savedUser = localStorage.getItem('user');
@@ -31,7 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
-    const { data } = await apiClient.post<LoginResponse>('/auth/login', {
+    const { data } = await apiClient.post<CrmLoginResponse>('/crm/auth/login', {
       email,
       password,
     });
