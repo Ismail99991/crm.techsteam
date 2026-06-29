@@ -33,22 +33,21 @@ export default function DashboardPage() {
 
   const loadDashboardData = async () => {
     try {
-      const [usersRes, ordersRes, productsRes, eventsRes, quotesRes, callbacksRes] =
-        await Promise.allSettled([
-          apiClient.get('/market/orders'),
-          apiClient.get('/products'),
-          apiClient.get('/events'),
+      const results = await Promise.allSettled([
+        apiClient.get('/market/users'),
+        apiClient.get('/market/orders'),
+        apiClient.get('/products'),
+        apiClient.get('/events'),
+        apiClient.get('/market/quote-request'),
+        apiClient.get('/market/callback'),
+      ]);
 
-          apiClient.get('/market/quote-request'),
-          apiClient.get('/callbacks'),
-        ]);
-
-      const users = usersRes.status === 'fulfilled' ? usersRes.value.data : [];
-      const orders: Order[] = ordersRes.status === 'fulfilled' ? ordersRes.value.data : [];
-      const products = productsRes.status === 'fulfilled' ? productsRes.value.data : [];
-      const recentEvents: AppEvent[] = eventsRes.status === 'fulfilled' ? eventsRes.value.data : [];
-      const recentQuoteRequests: QuoteRequest[] = quotesRes.status === 'fulfilled' ? quotesRes.value.data : [];
-      const callbacks = callbacksRes.status === 'fulfilled' ? callbacksRes.value.data : [];
+      const users = results[0].status === 'fulfilled' ? results[0].value.data : [];
+      const orders: Order[] = results[1].status === 'fulfilled' ? results[1].value.data : [];
+      const products = results[2].status === 'fulfilled' ? results[2].value.data : [];
+      const recentEvents: AppEvent[] = results[3].status === 'fulfilled' ? results[3].value.data : [];
+      const recentQuoteRequests: QuoteRequest[] = results[4].status === 'fulfilled' ? results[4].value.data : [];
+      const callbacks = results[5].status === 'fulfilled' ? results[5].value.data : [];
 
       const revenue = orders
         .filter((o) => !['CREATED', 'CANCELED'].includes(o.status))

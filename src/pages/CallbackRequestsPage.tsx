@@ -26,7 +26,7 @@ export default function CallbackRequestsPage() {
 
   const loadCallbacks = async () => {
     try {
-      const { data } = await apiClient.get('/callbacks');
+      const { data } = await apiClient.get('/market/callback');
       setCallbacks(data);
     } catch (err) {
       addToast('error', getErrorMessage(err));

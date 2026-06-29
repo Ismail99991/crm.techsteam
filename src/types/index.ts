@@ -90,6 +90,10 @@ export interface MarketUser {
   avatar?: UploadedFile | null;
   createdAt: string;
   updatedAt: string;
+  _count?: {
+    orders: number;
+    quotes: number;
+  };
 }
 
 // ========================

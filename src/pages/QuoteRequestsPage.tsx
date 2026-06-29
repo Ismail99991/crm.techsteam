@@ -31,7 +31,7 @@ export default function QuoteRequestsPage() {
 
   const loadQuotes = async () => {
     try {
-      const { data } = await apiClient.get('/market/quote-request');
+      const { data } = await apiClient.get('/market/quote-request/all');
       setQuotes(data);
     } catch (err) {
       addToast('error', getErrorMessage(err));
